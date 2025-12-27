@@ -52,8 +52,24 @@ class AgentEntrySingle:
             proposed_action_string = self.agent.proposal
             # Using regular expressions to extract a clean output.
             match = re.search(r"#(.*?)#", proposed_action_string)
-            extracted_text = match.group(1)
-            numerized_action = int(extracted_text)  # Convert the extracted text to an integer
+            
+            if match:
+                extracted_text = match.group(1)
+                try:
+                    # int() can handle signs like "+3" or "-2"
+                    numerized_action = int(extracted_text)
+                except ValueError:
+                    # Fallback: if text is inside hashtags but not a pure integer, try to find the digit
+                    digit_match = re.search(r"[-+]?\d+", extracted_text)
+                    if digit_match:
+                        numerized_action = int(digit_match.group())
+                    else:
+                        print(f"Warning: Could not parse action from '{extracted_text}'. Defaulting to 0.")
+                        numerized_action = 0
+            else:
+                # Mitigation for formatting inconsistencies [cite: 660-661]
+                print(f"Warning: No hashtag-enclosed action found in LLM response. Defaulting to 0.")
+                numerized_action = 0
 
             print(f"++++++++++++++>>>>>>{numerized_action}")
         return numerized_action
@@ -94,8 +110,14 @@ class AgentEntryRolePlaying:
             proposed_action_string = self.agent.response
             # Using regular expressions to extract a clean output.
             match = re.search(r"#\\?\+?(-?\d+)\\?#", proposed_action_string)
-            extracted_text = match.group(1)
-            numerized_action = int(extracted_text)
+            
+            if match:
+                extracted_text = match.group(1)
+                numerized_action = int(extracted_text)
+            else:
+                # Log the formatting error as identified in the PDF guide [cite: 660]
+                print(f"Warning: Role-playing agent failed formatting. Defaulting to 0.")
+                numerized_action = 0
 
             print(f"++++++++++++++>>>>>>{numerized_action}")
         return numerized_action

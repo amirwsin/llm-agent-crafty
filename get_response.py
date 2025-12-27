@@ -1,24 +1,32 @@
 from openai import OpenAI
-
 from connection_handler import retry_with_exponential_backoff
-from key import key
+from key import key,base_url as custom_base_url
 
-openai_api_key = key
-# Initialize the LLM
-client = OpenAI(api_key=key)
+LLM_PROVIDER = "gemini"  # "openai", "gemini", or "custom"
+MODEL_NAME = "gemini-2.5-flash" if LLM_PROVIDER == "gemini" else "gpt-4"
 
+def get_client():
+    if LLM_PROVIDER == "gemini":
+        return OpenAI(
+            api_key=key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+        )
+    elif LLM_PROVIDER == "openai":
+        return OpenAI(api_key=key)
+    else:
+        # Support for other providers (Anthropic, Deepseek, local Ollama, etc.)
+        return OpenAI(
+            api_key=key,
+            base_url=custom_base_url
+        )
+
+client = get_client()
 
 @retry_with_exponential_backoff
 def get_response(prompt):
     response = client.chat.completions.create(
-        model="gpt-4-1106-preview",
-        # Temperature is a parameter that can adjust the randomness of the output.
-        # 0 or very small non-negative values can make model more deterministic.
-        # However, ironically since OpenAI is not open and is evolving rapidly,
-        # setting temperature to zero may not always ensure the reproducibility of the results.
+        model=MODEL_NAME,
         temperature=0,
-        messages=[
-            {"role": "user", "content": prompt},
-        ]
+        messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content

@@ -187,8 +187,10 @@ public class DataCenter implements ModelState {// , Steppable{
 			landCell.initializeProductionFilter(this);
 
 			cellSet.add(landCell);
-			int x = landCell.getInformationTable().getInt("x");
-			int y = landCell.getInformationTable().getInt("y");
+			// int x = landCell.getInformationTable().getInt("x");
+			// int y = landCell.getInformationTable().getInt("y");
+			int x = landCell.getInformationTable().getInt("Longitude");
+			int y = landCell.getInformationTable().getInt("Latitude");
 			cellSet.addCellToMap(x, y, landCell);
 			String managerTypeString = table.row(i).getString("FR");
 			// clone and mutate
@@ -252,7 +254,13 @@ public class DataCenter implements ModelState {// , Steppable{
 				Row cellInformationTable = anualCapitalTable.row(i);
 				int x = cellInformationTable.getInt("x");// not case-sensitive
 				int y = cellInformationTable.getInt("y");
-				cellSet.getCell(x, y).setInformationTable(cellInformationTable);
+				AbstractCell cell = cellSet.getCell(x, y);
+				if (cell != null) {
+					cell.setInformationTable(cellInformationTable);
+				} else {
+					System.err.println("Warning: Cell not found at coordinates: " + x + ", " + y);
+				}
+				// cellSet.getCell(x, y).setInformationTable(cellInformationTable);
 			}
 
 			// update landCell HashMaps.

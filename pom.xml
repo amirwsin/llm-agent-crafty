@@ -36,7 +36,7 @@
 	  <dependency>
 			<groupId>tech.tablesaw</groupId>
 			<artifactId>tablesaw-core</artifactId>
-			<version>LATEST</version>
+			<version>0.43.1</version>
 		</dependency>
 
 <!-- add this dependency might cause version conflicts with the mason's jfree version, 

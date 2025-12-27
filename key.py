@@ -1,1 +1,2 @@
-key =  "put your OpenAI API key here"
+key =  ""
+base_url = ""

@@ -1,3 +1,4 @@
+import time
 from py4j.java_gateway import JavaGateway, CallbackServerParameters
 from templates import *
 from agent_entries import AgentEntrySingle, AgentEntryRolePlaying
@@ -26,8 +27,15 @@ def main():
     gateway = JavaGateway(
         callback_server_parameters=CallbackServerParameters(),
         python_server_entry_point=agent_entry)
-    print("Server started...")
+    
+    print("Server started and waiting for callbacks...")
 
+    # Keep the Python process alive to handle callbacks from Java
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Stopping Python agent server...")
 
 if __name__ == '__main__':
     main()

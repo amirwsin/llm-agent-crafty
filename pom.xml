@@ -98,11 +98,11 @@ resulting in relection error when inpecting charts-->
 	<version>0.10.9.7</version>
 </dependency>
 
- <dependency>
-        <groupId>cs.gmu.edu.eclab</groupId>
-        <artifactId>distributed</artifactId>
-        <version>1.0</version>
-    </dependency>
+<!-- <dependency>-->
+<!--        <groupId>cs.gmu.edu.eclab</groupId>-->
+<!--        <artifactId>distributed</artifactId>-->
+<!--        <version>1.0</version>-->
+<!--    </dependency>-->
 
 
 

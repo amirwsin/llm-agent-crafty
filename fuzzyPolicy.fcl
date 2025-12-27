@@ -1,0 +1,196 @@
+
+//////////////////////////////////////////////////////////////////////////////////////////
+FUNCTION_BLOCK policy	// Block definition (there may be more than one block per file)
+
+// Define input variables
+VAR_INPUT				
+	gap: REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT				
+	intervention : REAL;
+END_VAR
+
+// Fuzzify input variable 'gap': {'nhigh', 'nmild' , 'nlight', ’neutral’, ’plight’, ’pmild’, ’phigh’}
+FUZZIFY gap			
+	TERM nhigh := (-0.5,1) (-0.3,0); 
+	TERM nmild := (-0.5,0) (-0.3,1) (-0.1,0);
+	TERM nlight := (-0.3,0) (-0.1,1) (0,0);
+	TERM neutral := (-0.05,0) (0,1) (0.05,0);
+	TERM plight := (0, 0) (0.1, 1) (0.3,0);
+	TERM pmild := (0.1,0) (0.3,1) (0.5,0);
+	TERM phigh := (0.3, 0) (0.5, 1);
+END_FUZZIFY
+
+
+// Defzzzify output variable intervention: { 'nhigh',’nmild’,’neutral’,’pmild’, 'phigh' }
+DEFUZZIFY intervention			
+	TERM nhigh := (-0.2,1) (-0.1,0);
+	TERM nmild := (-0.15,0) (-0.05,1) (0,0);
+	TERM neutral := (-0.02,0) (0,1) (0.02,0);
+	TERM pmild := (0,0) (0.05,1) (0.15,0);
+	TERM phigh := (0.1,0) (0.2,1);
+
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+// Inference rules
+RULEBLOCK No1
+	AND : MIN;	// Use 'min' for 'and'
+	ACT : MIN;	// Use 'min' activation method
+	ACCU : MAX;	// Use 'max' accumulation method
+
+	RULE 1 : IF gap IS nhigh  THEN intervention IS nhigh;
+	RULE 2 : IF gap IS nmild  THEN intervention IS nmild; 
+	RULE 3 : IF gap IS nlight THEN intervention IS neutral;
+	RULE 4 : IF gap IS neutral THEN intervention IS neutral;
+	RULE 5 : IF gap IS plight THEN intervention IS neutral;
+	RULE 6 : IF gap IS pmild THEN intervention IS pmild;
+	RULE 7 : IF gap IS phigh THEN intervention IS phigh;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+
+//////////////////////////////////////////////////////////////////////////////////
+FUNCTION_BLOCK subsidy	// Block definition (there may be more than one block per file)
+
+// Define input variables
+VAR_INPUT				
+	gap: REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT				
+	intervention : REAL;
+END_VAR
+
+// Fuzzify input variable 'gap': {'plow', ’plight’, ’pmild’, ’phigh’}
+FUZZIFY gap
+	TERM plow := (0,1) (0.15,0)	;		
+	TERM plight := (0.025, 0) (0.175, 1) (0.325,0);
+	TERM pmild := (0.175,0) (0.325,1) (0.45,0);
+	TERM phigh := (0.325, 0) (0.45, 1);
+END_FUZZIFY
+
+
+// Defzzzify output variable intervention: {’neutral’,'plight',’pmild’, 'phigh' }
+DEFUZZIFY intervention			
+	TERM neutral := (-0.015,1) (0.05,0);
+	TERM plight := (0.025,0) (0.075,1) (0.125,0);
+	TERM pmild := (0.075,0) (0.125,1) (0.175,0);
+	TERM phigh := (0.125,0) (0.2,1);
+
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+// Inference rules
+RULEBLOCK No1
+	AND : MIN;	// Use 'min' for 'and'
+	ACT : MIN;	// Use 'min' activation method
+	ACCU : MAX;	// Use 'max' accumulation method
+	
+	RULE 0 : IF gap IS plow THEN intervention IS neutral;
+	RULE 1 : IF gap IS plight THEN intervention IS plight;
+	RULE 2 : IF gap IS pmild THEN intervention IS pmild;
+	RULE 3 : IF gap IS phigh THEN intervention IS phigh;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+/////////////////////////////////////////////////////////////////////
+
+FUNCTION_BLOCK tax	// Block definition (there may be more than one block per file)
+
+// Define input variables
+VAR_INPUT				
+	gap: REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT				
+	intervention : REAL;
+END_VAR
+
+// Fuzzify input variable 'gap': {'nhigh', 'nmild' , 'nlight','nlow'}
+FUZZIFY gap			
+	TERM nhigh := (-0.5,1) (-0.3,0); 
+	TERM nmild := (-0.4,0) (-0.3,1) (-0.2,0);
+	TERM nlight := (-0.3,0) (-0.1,1) (0,0);
+	TERM nlow := (-0.1,0) (0,1) ;
+END_FUZZIFY
+
+
+// Defzzzify output variable intervention: {’neutral’,'light',’mild’, 'high' }
+DEFUZZIFY intervention			
+	TERM neutral :=  (-0.05,0) (0,1) (0.025,1);
+	TERM light := (-0.125,0) (-0.075,1) (-0.025,0);
+	TERM mild := (-0.175,0)(-0.125,1) (-0.075,0) ;
+	TERM high := (-0.2,1) (-0.125,0) ;
+
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+// Inference rules
+RULEBLOCK No1
+	AND : MIN;	// Use 'min' for 'and'
+	ACT : MIN;	// Use 'min' activation method
+	ACCU : MAX;	// Use 'max' accumulation method
+
+	RULE 1 : IF gap IS nhigh  THEN intervention IS high;
+	RULE 2 : IF gap IS nmild  THEN intervention IS mild; 
+	RULE 3 : IF gap IS nlight THEN intervention IS light;
+	RULE 4 : IF gap IS nlow THEN intervention IS neutral;
+END_RULEBLOCK
+END_FUNCTION_BLOCK
+
+//////////////////////////////////////////////////////////////////////////////////
+FUNCTION_BLOCK protection	// Block definition (there may be more than one block per file)
+
+// Define input variables
+VAR_INPUT				
+	gap: REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT				
+	intervention : REAL;
+END_VAR
+
+// Fuzzify input variable 'gap': {'plow', ’plight’, ’pmild’, ’phigh’}
+FUZZIFY gap
+	TERM plow := (0,1) (0.15,0)	;		
+	TERM plight := (0.025, 0) (0.175, 1) (0.325,0);
+	TERM pmild := (0.175,0) (0.325,1) (0.45,0);
+	TERM phigh := (0.325, 0) (0.45, 1);
+END_FUZZIFY
+
+
+// Defzzzify output variable intervention: {’neutral’,'plight',’pmild’, 'phigh' }
+DEFUZZIFY intervention			
+	TERM neutral := (0,1) (0.075,0);
+	TERM plight := (0.025,0) (0.075,1) (0.125,0);
+	TERM pmild := (0.075,0) (0.125,1) (0.175,0);
+	TERM phigh := (0.125,0) (0.2,1);
+
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+// Inference rules
+RULEBLOCK No1
+	AND : MIN;	// Use 'min' for 'and'
+	ACT : MIN;	// Use 'min' activation method
+	ACCU : MAX;	// Use 'max' accumulation method
+	
+	RULE 0 : IF gap IS plow THEN intervention IS neutral;
+	RULE 1 : IF gap IS plight THEN intervention IS plight;
+	RULE 2 : IF gap IS pmild THEN intervention IS pmild;
+	RULE 3 : IF gap IS phigh THEN intervention IS phigh;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+/////////////////////////////////////////////////////////////////////////////////////
+

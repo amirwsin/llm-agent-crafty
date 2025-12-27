@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>kit.imk-ifu</groupId>
+  <artifactId>lucc</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>CraftyMason</name>
+ <build>
+    <plugins>
+
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>exec-maven-plugin</artifactId>
+    <version>3.1.0</version>
+    <configuration>
+        <mainClass>${exec.mainClass}</mainClass>
+        <arguments>
+            <argument>${exec.args}</argument>
+        </arguments>
+    </configuration>
+</plugin>
+
+
+    </plugins>
+</build>
+
+
+<properties>
+   <maven.compiler.source>17</maven.compiler.source>
+   <maven.compiler.target>17</maven.compiler.target>
+<!--   <j3d.path>C:\JAVA3D\j3dlibs\j3dlibs</j3d.path>-->
+<!--   <mason.path>C:\Mason\mason</mason.path>-->
+<!--   <jfuzzy.path>C:\JFuzzyLogic</jfuzzy.path>-->
+</properties>
+
+  <dependencies>
+	  <dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-core</artifactId>
+			<version>LATEST</version>
+		</dependency>
+
+<!-- add this dependency might cause version conflicts with the mason's jfree version, 
+resulting in relection error when inpecting charts-->
+<!-- <dependency>  
+    <groupId>org.jfree</groupId>
+    <artifactId>jfreechart</artifactId>
+    <version>1.5.4</version>
+</dependency>-->
+
+<dependency>
+    <groupId>mason</groupId>
+    <artifactId>mason</artifactId>
+    <version>21.0</version>
+</dependency>
+
+
+<!--    <dependency>-->
+<!--        <groupId>cs.gmu.edu.eclab</groupId>  This might be the same or different in the module's POM -->
+<!--        <artifactId>mason</artifactId>  Assuming 'mason' is the actual library you want -->
+<!--        <version>20</version>-->
+<!--    </dependency>-->
+
+
+
+<dependency>
+    <groupId>j3d</groupId>
+    <artifactId>j3dcore</artifactId>
+    <version>1.0</version>
+</dependency>
+
+<dependency>
+    <groupId>j3d</groupId>
+    <artifactId>j3dutils</artifactId>
+    <version>1.0</version>
+</dependency>
+
+<dependency>
+    <groupId>j3d</groupId>
+    <artifactId>jogamp-fat</artifactId>
+    <version>1.0</version>
+</dependency>
+
+<dependency>
+    <groupId>j3d</groupId>
+    <artifactId>vecmath</artifactId>
+    <version>1.0</version>
+</dependency>
+
+<dependency>
+    <groupId>fuzzy</groupId>
+    <artifactId>fuzzy</artifactId>
+    <version>1.0</version>
+</dependency>
+
+<dependency>
+	<groupId>net.sf.py4j</groupId>
+	<artifactId>py4j</artifactId>
+	<version>0.10.9.7</version>
+</dependency>
+
+ <dependency>
+        <groupId>cs.gmu.edu.eclab</groupId>
+        <artifactId>distributed</artifactId>
+        <version>1.0</version>
+    </dependency>
+
+
+
+  </dependencies>
+  
+
+</project>

@@ -117,8 +117,9 @@ public class LLMInstitution extends AbstractInstitution {
             
             if (!file.exists()) {
                 try (FileWriter writer = new FileWriter(CSV_PATH)) {
-                    writer.append("Timestamp,Year,AverageError,LLM_Response,Incremental_Intervention,Current_Supply\n");
-                }
+				writer.append("Timestamp,Year,AverageError,LLM_Response,Incremental_Intervention,Current_Supply\n"); 
+				writer.flush();
+				}
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -220,6 +221,7 @@ private void logToCsv(double year, String error, int resp, double inc, double su
             
             writer.append(String.format("%s,%.0f,%s,%d,%.2f,%.2f\n", 
                           timestamp, year, error, resp, inc, supply));
+			writer.flush();
         } catch (IOException e) {
             System.err.println("CSV Log Error: " + e.getMessage());
         }

@@ -5,7 +5,13 @@
 
 package llmExp;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Properties;
+
 import crafty.DataCenter;
 import display.GridOfCharts;
 import modelRunner.ModelRunner;
@@ -15,6 +21,7 @@ import updaters.InfluencedUtilityUpdater;
 import updaters.MapUpdater;
 import updaters.SupplyInitializer;
 import updaters.SupplyUpdater;
+
 
 public class LLMRunner extends ModelRunner {
 
@@ -36,6 +43,7 @@ public class LLMRunner extends ModelRunner {
 
 	public LLMRunner(long seed) {
 		super(seed);
+		loadExternalConfig();
 		loadStateManager();
 	}
 
@@ -43,6 +51,59 @@ public class LLMRunner extends ModelRunner {
 		doLoop(LLMRunner.class, args);
 		System.exit(0);
 	}
+
+	private void loadExternalConfig() {
+        Properties prop = new Properties();
+        File configFile = new File("config.properties");
+
+        // 1. If file doesn't exist, create it with ALL default metrics
+        if (!configFile.exists()) {
+            System.out.println("config.properties not found. Creating default file with all metrics...");
+            try (FileOutputStream out = new FileOutputStream(configFile)) {
+                prop.setProperty("meatGoal", String.valueOf(meatGoal));
+                prop.setProperty("cropGoal", String.valueOf(cropGoal));
+                prop.setProperty("divGoal", String.valueOf(divGoal));
+                prop.setProperty("limit", String.valueOf(limit));
+                prop.setProperty("policyLag", String.valueOf(policyLag));
+                prop.setProperty("meatLag", String.valueOf(meatLag));
+                prop.setProperty("cropLag", String.valueOf(cropLag));
+                prop.setProperty("paInertia", String.valueOf(paInertia));
+                prop.setProperty("threshold", String.valueOf(threshold));
+                prop.setProperty("endYearProtc", String.valueOf(endYearProtc));
+                
+                prop.store(out, "LLM Agent Simulation Configuration - Metrics");
+            } catch (IOException e) {
+                System.err.println("Could not create default config: " + e.getMessage());
+            }
+        }
+
+        // 2. Load the properties from the file and update the class variables
+        try (FileInputStream ip = new FileInputStream(configFile)) {
+            prop.load(ip);
+            
+            this.meatGoal = Double.parseDouble(prop.getProperty("meatGoal", "1.0"));
+            this.cropGoal = Double.parseDouble(prop.getProperty("cropGoal", "4.0"));
+            this.divGoal = Double.parseDouble(prop.getProperty("divGoal", "2.0"));
+            this.limit = Double.parseDouble(prop.getProperty("limit", "0.66"));
+            
+            this.policyLag = Integer.parseInt(prop.getProperty("policyLag", "5"));
+            this.meatLag = Integer.parseInt(prop.getProperty("meatLag", "5"));
+            this.cropLag = Integer.parseInt(prop.getProperty("cropLag", "5"));
+            this.endYearProtc = Integer.parseInt(prop.getProperty("endYearProtc", "0"));
+            
+            this.paInertia = Double.parseDouble(prop.getProperty("paInertia", "0.1"));
+            this.threshold = Double.parseDouble(prop.getProperty("threshold", "0.3"));
+            
+            System.out.println("--- Configuration Loaded Successfully ---");
+            System.out.println("Meat Goal: " + meatGoal + " | Meat Lag: " + meatLag);
+            System.out.println("Crop Goal: " + cropGoal + " | Crop Lag: " + cropLag);
+            System.out.println("-----------------------------------------");
+            
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error loading config.properties, using system defaults.");
+            // Hardcoded fallbacks are already initialized in the field declarations
+        }
+    }
 
 	public void loadStateManager() {
 		DataCenter dataCenter = new DataCenter(serviceNameFile, capitalNameFile, agentFilePath, baselineMapFilePath,

@@ -27,8 +27,13 @@
 
 package llmExp;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +54,7 @@ public class LLMInstitution extends AbstractInstitution {
 	String actionHistory = "0";
 	double initialMeatSupply;
 	AgentEntry agentEntry;
+	private static final String CSV_PATH = "demo/result.csv";
 
 
 	@Override
@@ -100,7 +106,24 @@ public class LLMInstitution extends AbstractInstitution {
 
 		supplyCollector = new InformCollector("Meat");
 		demandCollector = new InformCollector("Meat");
+
+		prepareCsv();
 	}
+
+	private void prepareCsv() {
+        try {
+            File file = new File(CSV_PATH);
+            file.getParentFile().mkdirs();
+            
+            if (!file.exists()) {
+                try (FileWriter writer = new FileWriter(CSV_PATH)) {
+                    writer.append("Timestamp,Year,AverageError,LLM_Response,Incremental_Intervention,Current_Supply\n");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 	@Override
 	protected void collectInformation() {
@@ -177,9 +200,30 @@ public class LLMInstitution extends AbstractInstitution {
 				System.out.println("averageErrors: " + averageErrors + "; response: " + response + "; increment: "
 						+ incrementalIntervention);
 				System.out.println("Meat supply: " + supplyCollector.get("Meat"));
+
+				logToCsv(
+                    modelRunner.schedule.getTime(),
+                    doubleToPercentage(policy.getEvluation()),
+                    response,
+                    incrementalIntervention,
+                    supplyCollector.get("Meat").get(supplyCollector.get("Meat").size() - 1)
+                );
+
+				
 			}
 		});
 	}
+
+private void logToCsv(double year, String error, int resp, double inc, double supply) {
+        try (FileWriter writer = new FileWriter(CSV_PATH, true)) {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            
+            writer.append(String.format("%s,%.0f,%s,%d,%.2f,%.2f\n", 
+                          timestamp, year, error, resp, inc, supply));
+        } catch (IOException e) {
+            System.err.println("CSV Log Error: " + e.getMessage());
+        }
+    }
 
 	@Override
 	protected void budgetUpdate() {
